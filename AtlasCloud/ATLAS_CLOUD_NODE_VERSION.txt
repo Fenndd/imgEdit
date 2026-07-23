@@ -1,0 +1,6 @@
+Official Atlas Cloud ComfyUI node package
+
+Repository: https://github.com/AtlasCloudAI/atlascloud_comfyui
+Pinned commit: 0a918a839af0d74d99c747a84c65b048411c940e
+Installed path: AtlasCloud\custom_nodes\atlascloud_comfyui
+Verified: 2026-07-23

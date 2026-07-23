@@ -1,5 +1,8 @@
 # Using the local FLUX.2 Klein setup
 
+For the separate Atlas Cloud profile, see [ATLAS_CLOUD.md](ATLAS_CLOUD.md).
+The instructions below apply only to local FLUX.2 Klein generation and editing.
+
 ## Start ComfyUI
 
 Use <code>START_FLUX2_BALANCED.bat</code> for normal work. It starts the local

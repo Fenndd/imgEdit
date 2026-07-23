@@ -1,4 +1,4 @@
-"""Run Q4 720p person edits with full-frame multi-reference identity preservation.
+"""Run quantized 720p person edits with full-frame multi-reference identity preservation.
 
 Every scenario starts from a byte-for-byte copy of the original photo as its
 first reference. Additional face/hair, closer facial-identity, and upper-body
@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from run_flux2_t2i_test import ROOT, gpu_memory_mib, ram_used_mib, request_json
 
 
-MODEL = "flux-2-klein-base-4b-Q4_K_M.gguf"
+DEFAULT_MODEL = "flux-2-klein-base-4b-Q4_K_M.gguf"
 WIDTH = 1280
 HEIGHT = 720
 INPUT_DIR = ROOT / "ComfyUI" / "input"
@@ -99,6 +99,10 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def quant_label(model_name: str) -> str:
+    return "Q5" if "Q5" in model_name else "Q4"
+
+
 def prepare_references(source: Path) -> dict[str, str]:
     """Make crop references in the actual outpaint coordinate space.
 
@@ -135,9 +139,10 @@ def prepare_references(source: Path) -> dict[str, str]:
     return {name: path.name for name, path in paths.items()}
 
 
-def make_prompt(refs: dict[str, str], scenario: dict[str, Any], seed: int, steps: int) -> dict[str, Any]:
-    """Return an original-first, multi-reference Q4 full-generation graph."""
+def make_prompt(refs: dict[str, str], scenario: dict[str, Any], seed: int, steps: int, model_name: str) -> dict[str, Any]:
+    """Return an original-first, multi-reference full-generation graph."""
     use_outpaint_layout = scenario["layout_reference"] == "outpaint"
+    filename_prefix = scenario["prefix"].replace("Q4", quant_label(model_name))
     nodes: dict[str, Any] = {
         "1": {"class_type": "LoadImage", "inputs": {"image": refs["original"]}},
         "2": {"class_type": "LoadImage", "inputs": {"image": refs["face"]}},
@@ -150,7 +155,7 @@ def make_prompt(refs: dict[str, str], scenario: dict[str, Any], seed: int, steps
         "6": {"class_type": "ImageScaleToTotalPixels", "inputs": {"image": ["3", 0], "upscale_method": "lanczos", "megapixels": 0.30, "resolution_steps": 16}},
         "41": {"class_type": "ImageScaleToTotalPixels", "inputs": {"image": ["40", 0], "upscale_method": "lanczos", "megapixels": 0.40, "resolution_steps": 16}},
         "45": {"class_type": "ImageScaleToTotalPixels", "inputs": {"image": ["38", 0], "upscale_method": "lanczos", "megapixels": 0.30, "resolution_steps": 16}},
-        "7": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": MODEL}},
+        "7": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": model_name}},
         "8": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen_3_4b.safetensors", "type": "flux2", "device": "cpu"}},
         "9": {"class_type": "VAELoader", "inputs": {"vae_name": "flux2-vae.safetensors"}},
         "10": {"class_type": "CLIPTextEncode", "inputs": {"text": scenario["instruction"], "clip": ["8", 0]}},
@@ -166,7 +171,7 @@ def make_prompt(refs: dict[str, str], scenario: dict[str, Any], seed: int, steps
         "25": {"class_type": "EmptyFlux2LatentImage", "inputs": {"width": WIDTH, "height": HEIGHT, "batch_size": 1}},
         "26": {"class_type": "SamplerCustomAdvanced", "inputs": {"noise": ["22", 0], "guider": ["21", 0], "sampler": ["23", 0], "sigmas": ["24", 0], "latent_image": ["25", 0]}},
         "27": {"class_type": "VAEDecode", "inputs": {"samples": ["26", 0], "vae": ["9", 0]}},
-        "37": {"class_type": "SaveImage", "inputs": {"images": ["27", 0], "filename_prefix": scenario["prefix"]}},
+        "37": {"class_type": "SaveImage", "inputs": {"images": ["27", 0], "filename_prefix": filename_prefix}},
     }
     latent_ids = ["12", "13", "14", "42"]
     if use_outpaint_layout:
@@ -184,16 +189,17 @@ def make_prompt(refs: dict[str, str], scenario: dict[str, Any], seed: int, steps
     return {"prompt": nodes}
 
 
-def run_scenario(refs: dict[str, str], name: str, scenario: dict[str, Any], seed: int, steps: int, timeout: int, result: dict[str, Any]) -> dict[str, Any]:
+def run_scenario(refs: dict[str, str], name: str, scenario: dict[str, Any], seed: int, steps: int, timeout: int, model_name: str, result: dict[str, Any]) -> dict[str, Any]:
     started = time.monotonic()
     run: dict[str, Any] = {
         "name": name,
         "instruction": scenario["instruction"],
         "seed": seed,
+        "model_name": model_name,
         "face_composite_policy": "original_primary_plus_crops__full_generation__face_scale_free",
         "layout_reference": scenario["layout_reference"],
     }
-    payload = make_prompt(refs, scenario, seed, steps)
+    payload = make_prompt(refs, scenario, seed, steps, model_name)
     prompt_id = request_json("/prompt", payload)["prompt_id"]
     run["prompt_id"] = prompt_id
     deadline = time.monotonic() + timeout
@@ -224,14 +230,16 @@ def main() -> int:
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--mode", choices=("all", *SCENARIOS), default="all")
     parser.add_argument("--steps", type=int, default=20)
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--seed", type=int, default=123456789)
     parser.add_argument("--timeout", type=int, default=1800)
     args = parser.parse_args()
+    model_quantization = quant_label(args.model)
 
     started = time.time()
     result: dict[str, Any] = {
-        "kind": "FLUX.2 Klein Q4 hardened multi-reference person edit test",
-        "model_name": MODEL,
+        "kind": f"FLUX.2 Klein {model_quantization} hardened multi-reference person edit test",
+        "model_name": args.model,
         "resolution": f"{WIDTH}x{HEIGHT}",
         "steps": args.steps,
         "source": str(args.source),
@@ -266,7 +274,7 @@ def main() -> int:
             raise RuntimeError("The primary reference copy differs from the user source")
         names = list(SCENARIOS) if args.mode == "all" else [args.mode]
         for offset, name in enumerate(names):
-            result["runs"].append(run_scenario(refs, name, SCENARIOS[name], args.seed + offset, args.steps, args.timeout, result))
+            result["runs"].append(run_scenario(refs, name, SCENARIOS[name], args.seed + offset, args.steps, args.timeout, args.model, result))
         result["completed"] = True
     except (urllib.error.URLError, urllib.error.HTTPError, KeyError, ValueError, FileNotFoundError, RuntimeError, TimeoutError) as error:
         result["completed"] = False
@@ -275,7 +283,7 @@ def main() -> int:
     result["elapsed_seconds"] = round(time.time() - started, 2)
     results_dir = ROOT / "test_results"
     results_dir.mkdir(exist_ok=True)
-    result_path = results_dir / f"hardened_person_q4_720p_{int(started)}.json"
+    result_path = results_dir / f"hardened_person_{model_quantization.lower()}_720p_{int(started)}.json"
     result_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"result_path": str(result_path), **result}, ensure_ascii=False, indent=2))
     return 0 if result.get("completed") else 2

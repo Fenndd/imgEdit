@@ -1,0 +1,181 @@
+{
+  "id": "atlas-cloud-text-to-image-flux2-pro",
+  "last_node_id": 3,
+  "last_link_id": 2,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "AtlasCloud Client",
+      "pos": [
+        40,
+        220
+      ],
+      "size": [
+        390,
+        150
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "atlas_client",
+          "type": "ATLAS_CLIENT",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AtlasCloud Client"
+      },
+      "widgets_values": [
+        "",
+        "https://api.atlascloud.ai"
+      ],
+      "title": "Atlas Cloud key from secure launcher"
+    },
+    {
+      "id": 2,
+      "type": "AtlasCloud FLUX.2 Pro Text-to-Image",
+      "pos": [
+        520,
+        180
+      ],
+      "size": [
+        440,
+        360
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "atlas_client",
+          "type": "ATLAS_CLIENT",
+          "link": 1
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_url",
+          "type": "STRING",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "prediction_id",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AtlasCloud FLUX.2 Pro Text-to-Image"
+      },
+      "widgets_values": [
+        "A cinematic editorial photograph of a small glass greenhouse at dusk, warm light inside, rain on the windows, realistic details",
+        "1024*1024",
+        "png",
+        2,
+        -1,
+        false,
+        false,
+        2.0,
+        300
+      ],
+      "title": "FLUX.2 Pro - text to image"
+    },
+    {
+      "id": 3,
+      "type": "AtlasCloud Image Preview",
+      "pos": [
+        1070,
+        200
+      ],
+      "size": [
+        410,
+        260
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "STRING",
+          "widget": {
+            "name": "source"
+          },
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": null,
+          "slot_index": 0
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null,
+          "slot_index": 1
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AtlasCloud Image Preview"
+      },
+      "widgets_values": [
+        "",
+        60,
+        "atlascloud",
+        "AtlasCloud_FLUX2_PRO",
+        "png",
+        95
+      ],
+      "title": "Result - saved to AtlasCloud output"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "ATLAS_CLIENT"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

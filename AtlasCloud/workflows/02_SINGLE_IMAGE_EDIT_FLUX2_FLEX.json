@@ -1,0 +1,306 @@
+{
+  "id": "atlas-cloud-single-image-edit-flux2-flex",
+  "last_node_id": 6,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        40,
+        310
+      ],
+      "size": [
+        320,
+        470
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "choose_image.png",
+        "image"
+      ],
+      "title": "1. Upload the source image"
+    },
+    {
+      "id": 2,
+      "type": "AtlasCloud Image to Base64",
+      "pos": [
+        430,
+        400
+      ],
+      "size": [
+        320,
+        120
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_base64",
+          "type": "STRING",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AtlasCloud Image to Base64"
+      },
+      "widgets_values": [],
+      "title": "2. Prepare image for Atlas Cloud"
+    },
+    {
+      "id": 3,
+      "type": "AtlasCloud Client",
+      "pos": [
+        430,
+        150
+      ],
+      "size": [
+        320,
+        150
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "atlas_client",
+          "type": "ATLAS_CLIENT",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AtlasCloud Client"
+      },
+      "widgets_values": [
+        "",
+        "https://api.atlascloud.ai"
+      ],
+      "title": "Key from secure launcher - leave blank"
+    },
+    {
+      "id": 4,
+      "type": "AtlasCloud FLUX.2 Flex Edit",
+      "pos": [
+        850,
+        190
+      ],
+      "size": [
+        450,
+        500
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "atlas_client",
+          "type": "ATLAS_CLIENT",
+          "link": 3
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "name": "images",
+          "type": "STRING",
+          "widget": {
+            "name": "images"
+          },
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_url",
+          "type": "STRING",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "prediction_id",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AtlasCloud FLUX.2 Flex Edit"
+      },
+      "widgets_values": [
+        "Change only the jacket to deep blue. Preserve the person's face, pose, lighting, composition, and background.",
+        "",
+        true,
+        "1024*1024",
+        5.0,
+        50,
+        "png",
+        2,
+        -1,
+        false,
+        false,
+        2.0,
+        300
+      ],
+      "title": "3. Describe one precise change"
+    },
+    {
+      "id": 5,
+      "type": "AtlasCloud Image Preview",
+      "pos": [
+        1380,
+        270
+      ],
+      "size": [
+        410,
+        260
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "STRING",
+          "widget": {
+            "name": "source"
+          },
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": null,
+          "slot_index": 0
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null,
+          "slot_index": 1
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AtlasCloud Image Preview"
+      },
+      "widgets_values": [
+        "",
+        60,
+        "atlascloud",
+        "AtlasCloud_FLUX2_FLEX_EDIT",
+        "png",
+        95
+      ],
+      "title": "Result - saved to AtlasCloud output"
+    },
+    {
+      "id": 6,
+      "type": "MarkdownNote",
+      "pos": [
+        30,
+        40
+      ],
+      "size": [
+        660,
+        180
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "Use one source image and ask for one concrete edit. The API key field is deliberately empty: the secure Atlas launcher supplies it. This workflow sends the uploaded image and prompt to Atlas Cloud."
+      ],
+      "title": "Atlas Cloud - single image edit"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      4,
+      2,
+      "STRING"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "ATLAS_CLIENT"
+    ],
+    [
+      4,
+      4,
+      0,
+      5,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

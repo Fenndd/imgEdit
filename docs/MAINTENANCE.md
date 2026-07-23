@@ -17,6 +17,11 @@ Use these files for this setup:
 | --- | --- |
 | <code>START_FLUX2_BALANCED.bat</code> | Normal local generation and editing. |
 | <code>START_FLUX2_MINIMUM_VRAM.bat</code> | Recovery profile after an out-of-memory error. |
+| <code>SET_ATLAS_CLOUD_API_KEY.bat</code> | Securely stores the Atlas Cloud key for the current Windows account. |
+| <code>TEST_ATLAS_CLOUD_CONNECTION.bat</code> | Checks the stored Atlas key without submitting a generation. |
+| <code>START_ATLAS_CLOUD.bat</code> | Starts the isolated Atlas Cloud profile on port 8189. |
+| <code>REMOVE_ATLAS_CLOUD_API_KEY.bat</code> | Removes the locally encrypted Atlas Cloud key. |
+| <code>INSTALL_ATLAS_CLOUD_NODES.bat</code> | Restores the pinned official Atlas node package if it is missing. |
 | <code>OPEN_OUTPUT_FOLDER.bat</code> | Opens generated images. |
 | <code>CHECK_SYSTEM.bat</code> | Read-only configuration check. |
 
@@ -26,6 +31,19 @@ or the stock
 verified FLUX/GGUF installation. Those scripts do not represent the tested
 profile, and the stock dependency updater can replace the bundled PyTorch
 version.
+
+## Atlas Cloud package
+
+The Atlas Cloud profile uses the official <code>atlascloud_comfyui</code>
+custom-node package, isolated under <code>AtlasCloud/custom_nodes</code> and
+pinned in [ATLAS_CLOUD.md](ATLAS_CLOUD.md). It is deliberately not loaded by
+the local FLUX.2 profile.
+
+Do not run a generic update against that package without first recording the
+new revision and checking its release notes. The Atlas Cloud launcher does not
+install or update packages automatically. If the pinned package has been
+deleted, run <code>INSTALL_ATLAS_CLOUD_NODES.bat</code>; it never overwrites an
+existing package at a different revision.
 
 ## Update carefully
 
