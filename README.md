@@ -59,5 +59,16 @@ See [Atlas Cloud setup and workflows](docs/ATLAS_CLOUD.md) for details.
 - No recovery snapshot is retained by default. An optional local snapshot can
   be created deliberately; the documents linked above are the current
   instructions.
-- The nested <code>ComfyUI/</code> repository retains its own upstream
+- <code>ComfyUI/</code> is a Git submodule pinned to an upstream
+  [Comfy-Org/ComfyUI](https://github.com/Comfy-Org/ComfyUI) commit. Clone with
+  <code>git clone --recurse-submodules</code> or run
+  <code>git submodule update --init</code>. It retains its own upstream
   documentation and is not rewritten by this project documentation.
+
+## License
+
+GPL-3.0, see [LICENSE](LICENSE). The project builds on ComfyUI, which is
+GPL-3.0, and includes ComfyUI portable launch and update scripts
+(<code>run_*.bat</code>, <code>update/</code>). Model weights (FLUX.2 Klein 4B)
+and Atlas Cloud nodes are not part of this repository and keep their own
+licenses and terms.
