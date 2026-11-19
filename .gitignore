@@ -24,3 +24,6 @@
 /AtlasCloud/logs/
 /AtlasCloud/secrets/
 /AtlasCloud/history/
+
+# Raw local test records (contain local paths and input file names)
+test_results/

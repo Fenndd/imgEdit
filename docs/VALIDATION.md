@@ -32,8 +32,8 @@ configured for offline mode during ordinary local use.
 
 ## Successful local runs
 
-Peak VRAM values are rounded to ordinary GB units. The raw test records are in
-<code>test_results/</code>.
+Peak VRAM values are rounded to ordinary GB units. Raw test records are written
+locally to <code>test_results/</code>, which is not tracked by Git.
 
 | Scenario | Resolution / steps | Time | Peak VRAM | Result |
 | --- | --- | ---: | ---: | --- |
